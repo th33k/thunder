@@ -545,16 +545,35 @@ jobs:
           QUICKSTART=$(echo "$QUICKSTART" | sed "s/latest release of WSO2 Thunder/$RELEASE_VERSION release of WSO2 Thunder/g")
 
           # Generate enhanced quickstart section with direct download links
-          # Use printf to create the download links sections properly
-          THUNDER_DOWNLOAD_LINKS=$(printf "\n\n    **Direct Download Links:**\n    - **Linux x64**: [thunder-%s-linux-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/thunder-%s-linux-x64.zip)\n    - **Linux ARM64**: [thunder-%s-linux-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/thunder-%s-linux-arm64.zip)\n    - **macOS x64**: [thunder-%s-macos-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/thunder-%s-macos-x64.zip)\n    - **macOS ARM64**: [thunder-%s-macos-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/thunder-%s-macos-arm64.zip)\n    - **Windows x64**: [thunder-%s-windows-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/thunder-%s-windows-x64.zip)" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION")
-
-          SAMPLE_DOWNLOAD_LINKS=$(printf "\n\n    **Direct Download Links:**\n    - **Linux x64**: [sample-app-%s-linux-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/sample-app-%s-linux-x64.zip)\n    - **Linux ARM64**: [sample-app-%s-linux-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/sample-app-%s-linux-arm64.zip)\n    - **macOS x64**: [sample-app-%s-macos-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/sample-app-%s-macos-x64.zip)\n    - **macOS ARM64**: [sample-app-%s-macos-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/sample-app-%s-macos-arm64.zip)\n    - **Windows x64**: [sample-app-%s-windows-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/sample-app-%s-windows-x64.zip)" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION")
+          # Use simple string assignment for download links
+          THUNDER_DOWNLOAD_LINKS="\n\n    **Direct Download Links:**\n    - **Linux x64**: [thunder-${RELEASE_VERSION}-linux-x64.zip](https://github.com/asgardeo/thunder/releases/download/v${RELEASE_VERSION}/thunder-${RELEASE_VERSION}-linux-x64.zip)\n    - **Linux ARM64**: [thunder-${RELEASE_VERSION}-linux-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v${RELEASE_VERSION}/thunder-${RELEASE_VERSION}-linux-arm64.zip)\n    - **macOS x64**: [thunder-${RELEASE_VERSION}-macos-x64.zip](https://github.com/asgardeo/thunder/releases/download/v${RELEASE_VERSION}/thunder-${RELEASE_VERSION}-macos-x64.zip)\n    - **macOS ARM64**: [thunder-${RELEASE_VERSION}-macos-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v${RELEASE_VERSION}/thunder-${RELEASE_VERSION}-macos-arm64.zip)\n    - **Windows x64**: [thunder-${RELEASE_VERSION}-win-x64.zip](https://github.com/asgardeo/thunder/releases/download/v${RELEASE_VERSION}/thunder-${RELEASE_VERSION}-win-x64.zip)"
           
-          # Insert Thunder download links after the Thunder download instruction
-          ENHANCED_QUICKSTART=$(echo "$QUICKSTART" | sed "/Download/a$(printf '%s' "$THUNDER_DOWNLOAD_LINKS")")
-
-          # Insert Sample app download links after the sample download instruction
-          ENHANCED_QUICKSTART=$(echo "$ENHANCED_QUICKSTART" | sed "/Download \`sample-app/a$(printf '%s' "$SAMPLE_DOWNLOAD_LINKS")")
+          # Same for sample app download links
+          SAMPLE_DOWNLOAD_LINKS="\n\n    **Direct Download Links:**\n    - **Linux x64**: [sample-app-${RELEASE_VERSION}-linux-x64.zip](https://github.com/asgardeo/thunder/releases/download/v${RELEASE_VERSION}/sample-app-${RELEASE_VERSION}-linux-x64.zip)\n    - **Linux ARM64**: [sample-app-${RELEASE_VERSION}-linux-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v${RELEASE_VERSION}/sample-app-${RELEASE_VERSION}-linux-arm64.zip)\n    - **macOS x64**: [sample-app-${RELEASE_VERSION}-macos-x64.zip](https://github.com/asgardeo/thunder/releases/download/v${RELEASE_VERSION}/sample-app-${RELEASE_VERSION}-macos-x64.zip)\n    - **macOS ARM64**: [sample-app-${RELEASE_VERSION}-macos-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v${RELEASE_VERSION}/sample-app-${RELEASE_VERSION}-macos-arm64.zip)\n    - **Windows x64**: [sample-app-${RELEASE_VERSION}-win-x64.zip](https://github.com/asgardeo/thunder/releases/download/v${RELEASE_VERSION}/sample-app-${RELEASE_VERSION}-win-x64.zip)"
+          
+          # Manually build the content by finding the right spots to insert our links
+          # First, find a line with "Download" and insert Thunder download links after it
+          DOWNLOAD_THUNDER_LINE=$(echo "$QUICKSTART" | grep -n "Download.*thunder" | head -1 | cut -d':' -f1)
+          if [ -n "$DOWNLOAD_THUNDER_LINE" ]; then
+            ENHANCED_QUICKSTART=$(echo "$QUICKSTART" | sed "${DOWNLOAD_THUNDER_LINE}a\\${THUNDER_DOWNLOAD_LINKS}")
+          else
+            # Fallback if we can't find the specific line
+            ENHANCED_QUICKSTART="$QUICKSTART
+            
+            $THUNDER_DOWNLOAD_LINKS"
+          fi
+          
+          # Now find the sample app download line and insert those links
+          DOWNLOAD_SAMPLE_LINE=$(echo "$ENHANCED_QUICKSTART" | grep -n "Download.*sample-app" | head -1 | cut -d':' -f1)
+          if [ -n "$DOWNLOAD_SAMPLE_LINE" ]; then
+            FINAL_QUICKSTART=$(echo "$ENHANCED_QUICKSTART" | sed "${DOWNLOAD_SAMPLE_LINE}a\\${SAMPLE_DOWNLOAD_LINKS}")
+            ENHANCED_QUICKSTART="$FINAL_QUICKSTART"
+          else
+            # Fallback if we can't find the specific line
+            ENHANCED_QUICKSTART="$ENHANCED_QUICKSTART
+            
+            $SAMPLE_DOWNLOAD_LINKS"
+          fi
           # Get changelog from Release Drafter
           CHANGELOG="${{ steps.changelog.outputs.body }}"
 
