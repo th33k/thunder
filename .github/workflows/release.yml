@@ -591,7 +591,94 @@ jobs:
           echo "release_tag=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
           echo "release_url=https://github.com/${{ github.repository }}/releases/tag/${RELEASE_VERSION}" >> $GITHUB_OUTPUT
       
-      - name: 🔔 Send Release Notification
+      - name: � Update README.md with Download Tables
+        run: |
+          # Get the release version without v prefix for replacement
+          RELEASE_VERSION="${{ steps.version.outputs.version }}"
+          if [[ $RELEASE_VERSION == v* ]]; then
+            RELEASE_VERSION="${RELEASE_VERSION#v}"
+          fi
+
+          # Create a Python script to update README.md with download tables
+          cat << 'EOF' > update_readme.py
+          import sys
+          import re
+
+          def main():
+              release_version = sys.argv[1]
+              
+              # Read README.md
+              with open('README.md', 'r', encoding='utf-8') as f:
+                  content = f.read()
+              
+              # Create Thunder download table
+              thunder_table = f"""Download `thunder-{release_version}-<os>-<arch>.zip` from the [{release_version} release](https://github.com/asgardeo/thunder/releases/latest) for your operating system and architecture:
+
+          | OS | Architecture | Download Link |
+          |---|---|---|
+          | macOS | ARM64 (Apple Silicon) | [thunder-{release_version}-macos-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v{release_version}/thunder-{release_version}-macos-arm64.zip) |
+          | macOS | x64 (Intel) | [thunder-{release_version}-macos-x64.zip](https://github.com/asgardeo/thunder/releases/download/v{release_version}/thunder-{release_version}-macos-x64.zip) |
+          | Linux | x64 | [thunder-{release_version}-linux-x64.zip](https://github.com/asgardeo/thunder/releases/download/v{release_version}/thunder-{release_version}-linux-x64.zip) |
+          | Linux | ARM64 | [thunder-{release_version}-linux-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v{release_version}/thunder-{release_version}-linux-arm64.zip) |
+          | Windows | x64 | [thunder-{release_version}-windows-x64.zip](https://github.com/asgardeo/thunder/releases/download/v{release_version}/thunder-{release_version}-windows-x64.zip) |"""
+
+              # Create Sample app download table  
+              sample_table = f"""Download `sample-app-{release_version}-<os>-<arch>.zip` from the [{release_version} release](https://github.com/asgardeo/thunder/releases/latest) for your operating system and architecture:
+
+          | OS | Architecture | Download Link |
+          |---|---|---|
+          | macOS | ARM64 (Apple Silicon) | [sample-app-{release_version}-macos-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v{release_version}/sample-app-{release_version}-macos-arm64.zip) |
+          | macOS | x64 (Intel) | [sample-app-{release_version}-macos-x64.zip](https://github.com/asgardeo/thunder/releases/download/v{release_version}/sample-app-{release_version}-macos-x64.zip) |
+          | Linux | x64 | [sample-app-{release_version}-linux-x64.zip](https://github.com/asgardeo/thunder/releases/download/v{release_version}/sample-app-{release_version}-linux-x64.zip) |
+          | Linux | ARM64 | [sample-app-{release_version}-linux-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v{release_version}/sample-app-{release_version}-linux-arm64.zip) |
+          | Windows | x64 | [sample-app-{release_version}-windows-x64.zip](https://github.com/asgardeo/thunder/releases/download/v{release_version}/sample-app-{release_version}-windows-x64.zip) |"""
+              
+              # Replace Thunder download section
+              thunder_pattern = r'Download `thunder-<version>-<os>-<arch>\.zip` from the \[latest release\]\(https://github\.com/asgardeo/thunder/releases/latest\) for your operating system and architecture\.'
+              content = re.sub(thunder_pattern, thunder_table, content, flags=re.MULTILINE | re.DOTALL)
+              
+              # Replace Sample download section
+              sample_pattern = r'Download `sample-app-<version>-<os>-<arch>\.zip` from the \[latest release\]\(https://github\.com/asgardeo/thunder/releases/latest\) for your operating system and architecture\.'
+              content = re.sub(sample_pattern, sample_table, content, flags=re.MULTILINE | re.DOTALL)
+              
+              # Replace remaining <version> placeholders
+              content = content.replace('<version>', release_version)
+              content = content.replace('latest release', f'{release_version} release')
+              content = content.replace(':latest', f':{release_version}')
+              
+              # Write back to README.md
+              with open('README.md', 'w', encoding='utf-8') as f:
+                  f.write(content)
+              
+              print("✅ README.md updated successfully with download tables")
+
+          if __name__ == "__main__":
+              main()
+          EOF
+
+          # Run the Python script
+          python3 update_readme.py "$RELEASE_VERSION"
+
+          echo "✅ README.md updated with download tables for version $RELEASE_VERSION"
+
+      - name: 📤 Commit and Push README Update
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Add the updated README.md
+          git add README.md
+
+          # Check if there are changes to commit
+          if ! git diff --cached --quiet; then
+            git commit -m "[Release] Update README.md with download tables for ${{ steps.version.outputs.version }}"
+            git push origin HEAD:main
+            echo "✅ README.md changes committed and pushed to main branch"
+          else
+            echo "✅ No changes to commit in README.md"
+          fi
+
+      - name: �🔔 Send Release Notification
         uses: ./.github/actions/release-notification
         with:
           webhook: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}

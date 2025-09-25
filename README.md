@@ -48,8 +48,6 @@ Follow these steps to download the latest release of WSO2 Thunder and run it loc
 
     Download `thunder-<version>-<os>-<arch>.zip` from the [latest release](https://github.com/asgardeo/thunder/releases/latest) for your operating system and architecture.
 
-    For example, if you are using a MacOS machine with a Apple Silicon (ARM64) processor, you would download `thunder-<version>-macos-arm64.zip`.
-
 2. **Unzip the product**
 
     Unzip the downloaded file using the following command:
