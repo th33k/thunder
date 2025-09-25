@@ -544,6 +544,18 @@ jobs:
           INTRO=$(echo "$INTRO" | sed "s/latest release of WSO2 Thunder/$RELEASE_VERSION release of WSO2 Thunder/g")
           QUICKSTART=$(echo "$QUICKSTART" | sed "s/latest release of WSO2 Thunder/$RELEASE_VERSION release of WSO2 Thunder/g")
 
+          # Generate enhanced quickstart section with direct download links
+          # Use printf to create the download links sections properly
+          THUNDER_DOWNLOAD_LINKS=$(printf "\n\n    **Direct Download Links:**\n    - **Linux x64**: [thunder-%s-linux-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/thunder-%s-linux-x64.zip)\n    - **Linux ARM64**: [thunder-%s-linux-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/thunder-%s-linux-arm64.zip)\n    - **macOS x64**: [thunder-%s-macos-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/thunder-%s-macos-x64.zip)\n    - **macOS ARM64**: [thunder-%s-macos-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/thunder-%s-macos-arm64.zip)\n    - **Windows x64**: [thunder-%s-windows-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/thunder-%s-windows-x64.zip)" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION")
+
+          SAMPLE_DOWNLOAD_LINKS=$(printf "\n\n    **Direct Download Links:**\n    - **Linux x64**: [sample-app-%s-linux-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/sample-app-%s-linux-x64.zip)\n    - **Linux ARM64**: [sample-app-%s-linux-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/sample-app-%s-linux-arm64.zip)\n    - **macOS x64**: [sample-app-%s-macos-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/sample-app-%s-macos-x64.zip)\n    - **macOS ARM64**: [sample-app-%s-macos-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/sample-app-%s-macos-arm64.zip)\n    - **Windows x64**: [sample-app-%s-windows-x64.zip](https://github.com/asgardeo/thunder/releases/download/v%s/sample-app-%s-windows-x64.zip)" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION" "$RELEASE_VERSION")
+          
+          # Insert Thunder download links after the MacOS example line
+          ENHANCED_QUICKSTART=$(echo "$QUICKSTART" | sed "/For example, if you are using a MacOS machine with a Apple Silicon (ARM64) processor, you would download \`thunder-$RELEASE_VERSION-macos-arm64.zip\`./a$(printf '%s' "$THUNDER_DOWNLOAD_LINKS")")
+          
+          # Insert Sample app download links after the sample download instruction
+          ENHANCED_QUICKSTART=$(echo "$ENHANCED_QUICKSTART" | sed "/Download \`sample-app-$RELEASE_VERSION-<os>-<arch>.zip\` from the \[$RELEASE_VERSION release\]/a$(printf '%s' "$SAMPLE_DOWNLOAD_LINKS")")
+
           # Get changelog from Release Drafter
           CHANGELOG="${{ steps.changelog.outputs.body }}"
 
@@ -554,7 +566,7 @@ jobs:
           echo "## 🔀 What's Changed" >> $GITHUB_ENV
           echo "$CHANGELOG" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
-          echo "$QUICKSTART" >> $GITHUB_ENV
+          echo "$ENHANCED_QUICKSTART" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
           echo "$LICENSE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
