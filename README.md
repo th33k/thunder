@@ -46,7 +46,7 @@ Follow these steps to download the latest release of WSO2 Thunder and run it loc
 
 1. **Download the distribution from the latest release**
 
-    Download `thunder-<version>-<os>-<arch>.zip` from the [latest release](https://github.com/asgardeo/thunder/releases/latest) for your operating system and architecture.
+    Download the [latest Thunder release](https://github.com/asgardeo/thunder/releases/latest) for your operating system and architecture.
 
 2. **Unzip the product**
 
@@ -126,7 +126,7 @@ To quickly get started with Thunder, you can use the sample app provided with th
 
 1. Download the sample app from the latest release
 
-    Download `sample-app-<version>-<os>-<arch>.zip` from the [latest release](https://github.com/asgardeo/thunder/releases/latest) for your operating system and architecture.
+    Download the [latest sample app release](https://github.com/asgardeo/thunder/releases/latest) for your operating system and architecture.
 
 2. Unzip and navigate to the sample app directory
 
