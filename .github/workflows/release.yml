@@ -540,43 +540,34 @@ jobs:
           QUICKSTART=$(echo "$QUICKSTART" | sed "s/:latest/:$RELEASE_VERSION/g")
           INTRO=$(echo "$INTRO" | sed "s/latest release/$RELEASE_VERSION release/g")
           QUICKSTART=$(echo "$QUICKSTART" | sed "s/latest release/$RELEASE_VERSION release/g")
+          
           # Handle other 'latest' references
           INTRO=$(echo "$INTRO" | sed "s/latest release of WSO2 Thunder/$RELEASE_VERSION release of WSO2 Thunder/g")
           QUICKSTART=$(echo "$QUICKSTART" | sed "s/latest release of WSO2 Thunder/$RELEASE_VERSION release of WSO2 Thunder/g")
 
-          # Find and replace the Thunder download instruction with direct links
-          thunder_download_line=$(echo "$QUICKSTART" | grep -n "Download \`thunder-.*\`" | cut -d ":" -f1)
-          if [ -n "$thunder_download_line" ]; then
-            # Create the formatted table
-            thunder_table="Download the distribution from the $RELEASE_VERSION release\n\n"
-            thunder_table+="| OS | Architecture | Download Link |\n"
-            thunder_table+="|-------|-------------|-------------|\n"
-            thunder_table+="| macOS | ARM64 (Apple Silicon) | [thunder-$RELEASE_VERSION-macos-arm64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-macos-arm64.zip) |\n"
-            thunder_table+="| macOS | x64 (Intel) | [thunder-$RELEASE_VERSION-macos-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-macos-x64.zip) |\n"
-            thunder_table+="| Linux | x64 | [thunder-$RELEASE_VERSION-linux-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-linux-x64.zip) |\n"
-            thunder_table+="| Linux | ARM64 | [thunder-$RELEASE_VERSION-linux-arm64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-linux-arm64.zip) |\n"
-            thunder_table+="| Windows | x64 | [thunder-$RELEASE_VERSION-win-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-win-x64.zip) |"
-            
-            # Replace the entire line and the next line (which likely contains the release link)
-            QUICKSTART=$(echo "$QUICKSTART" | sed "${thunder_download_line}s/Download.*architecture\./$thunder_table/")
-          fi
+          # Create a simpler approach - just replace the backtick text with direct download links
+          # For Thunder download links
+          THUNDER_LINKS="For your operating system and architecture:\n"
+          THUNDER_LINKS+="- macOS ARM64: [thunder-$RELEASE_VERSION-macos-arm64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-macos-arm64.zip)\n"
+          THUNDER_LINKS+="- macOS x64: [thunder-$RELEASE_VERSION-macos-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-macos-x64.zip)\n"
+          THUNDER_LINKS+="- Linux x64: [thunder-$RELEASE_VERSION-linux-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-linux-x64.zip)\n"
+          THUNDER_LINKS+="- Linux ARM64: [thunder-$RELEASE_VERSION-linux-arm64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-linux-arm64.zip)\n"
+          THUNDER_LINKS+="- Windows x64: [thunder-$RELEASE_VERSION-win-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-win-x64.zip)"
           
-          # Find and replace the Sample App download instruction with direct links
-          sample_download_line=$(echo "$QUICKSTART" | grep -n "Download \`sample-app-.*\`" | cut -d ":" -f1)
-          if [ -n "$sample_download_line" ]; then
-            # Create the formatted table
-            sample_table="Download the sample application from the $RELEASE_VERSION release\n\n"
-            sample_table+="| OS | Architecture | Download Link |\n"
-            sample_table+="|-------|-------------|-------------|\n"
-            sample_table+="| macOS | ARM64 (Apple Silicon) | [sample-app-$RELEASE_VERSION-macos-arm64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-macos-arm64.zip) |\n"
-            sample_table+="| macOS | x64 (Intel) | [sample-app-$RELEASE_VERSION-macos-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-macos-x64.zip) |\n"
-            sample_table+="| Linux | x64 | [sample-app-$RELEASE_VERSION-linux-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-linux-x64.zip) |\n"
-            sample_table+="| Linux | ARM64 | [sample-app-$RELEASE_VERSION-linux-arm64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-linux-arm64.zip) |\n"
-            sample_table+="| Windows | x64 | [sample-app-$RELEASE_VERSION-win-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-win-x64.zip) |"
-            
-            # Replace the entire line and the next line (which likely contains the release link)
-            QUICKSTART=$(echo "$QUICKSTART" | sed "${sample_download_line}s/Download.*architecture\./$sample_table/")
-          fi
+          # For Sample App download links
+          SAMPLE_APP_LINKS="For your operating system and architecture:\n"
+          SAMPLE_APP_LINKS+="- macOS ARM64: [sample-app-$RELEASE_VERSION-macos-arm64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-macos-arm64.zip)\n"
+          SAMPLE_APP_LINKS+="- macOS x64: [sample-app-$RELEASE_VERSION-macos-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-macos-x64.zip)\n"
+          SAMPLE_APP_LINKS+="- Linux x64: [sample-app-$RELEASE_VERSION-linux-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-linux-x64.zip)\n"
+          SAMPLE_APP_LINKS+="- Linux ARM64: [sample-app-$RELEASE_VERSION-linux-arm64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-linux-arm64.zip)\n"
+          SAMPLE_APP_LINKS+="- Windows x64: [sample-app-$RELEASE_VERSION-win-x64.zip](https://github.com/${{ github.repository }}/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-win-x64.zip)"
+
+          # Replace the download sections
+          # For Thunder
+          QUICKSTART=$(echo "$QUICKSTART" | sed -E "s|Download \`thunder-<version>-<os>-<arch>.zip\` from the \[latest release\]\(https://github.com/asgardeo/thunder/releases/latest\) for your operating system and architecture.|$THUNDER_LINKS|g")
+          
+          # For Sample App
+          QUICKSTART=$(echo "$QUICKSTART" | sed -E "s|Download \`sample-app-<version>-<os>-<arch>.zip\` from the \[latest release\]\(https://github.com/asgardeo/thunder/releases/latest\) for your operating system and architecture.|$SAMPLE_APP_LINKS|g")
 
           # Get changelog from Release Drafter
           CHANGELOG="${{ steps.changelog.outputs.body }}"
