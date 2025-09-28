@@ -544,6 +544,28 @@ jobs:
           INTRO=$(echo "$INTRO" | sed "s/latest release of WSO2 Thunder/$RELEASE_VERSION release of WSO2 Thunder/g")
           QUICKSTART=$(echo "$QUICKSTART" | sed "s/latest release of WSO2 Thunder/$RELEASE_VERSION release of WSO2 Thunder/g")
 
+          # --- Insert Thunder Download Table ---
+          THUNDER_TABLE="| OS | Architecture | Download Link |\n"
+          THUNDER_TABLE+="| --- | --- | --- |\n"
+          THUNDER_TABLE+="| macOS | ARM64 (Apple Silicon) | [thunder-$RELEASE_VERSION-macos-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-macos-arm64.zip) |\n"
+          THUNDER_TABLE+="| macOS | x64 (Intel) | [thunder-$RELEASE_VERSION-macos-x64.zip](https://github.com/asgardeo/thunder/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-macos-x64.zip) |\n"
+          THUNDER_TABLE+="| Linux | x64 | [thunder-$RELEASE_VERSION-linux-x64.zip](https://github.com/asgardeo/thunder/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-linux-x64.zip) |\n"
+          THUNDER_TABLE+="| Linux | ARM64 | [thunder-$RELEASE_VERSION-linux-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-linux-arm64.zip) |\n"
+          THUNDER_TABLE+="| Windows | x64 | [thunder-$RELEASE_VERSION-win-x64.zip](https://github.com/asgardeo/thunder/releases/download/v$RELEASE_VERSION/thunder-$RELEASE_VERSION-win-x64.zip) |\n"
+
+          QUICKSTART=$(echo "$QUICKSTART" | sed -E "s|Download `thunder-<version>-<os>-<arch>.zip` from the \[latest release\].*|$THUNDER_TABLE|")
+
+          # --- Insert Sample App Download Table ---
+          SAMPLE_APP_TABLE="| OS | Architecture | Download Link |\n"
+          SAMPLE_APP_TABLE+="| --- | --- | --- |\n"
+          SAMPLE_APP_TABLE+="| macOS | ARM64 (Apple Silicon) | [sample-app-$RELEASE_VERSION-macos-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-macos-arm64.zip) |\n"
+          SAMPLE_APP_TABLE+="| macOS | x64 (Intel) | [sample-app-$RELEASE_VERSION-macos-x64.zip](https://github.com/asgardeo/thunder/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-macos-x64.zip) |\n"
+          SAMPLE_APP_TABLE+="| Linux | x64 | [sample-app-$RELEASE_VERSION-linux-x64.zip](https://github.com/asgardeo/thunder/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-linux-x64.zip) |\n"
+          SAMPLE_APP_TABLE+="| Linux | ARM64 | [sample-app-$RELEASE_VERSION-linux-arm64.zip](https://github.com/asgardeo/thunder/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-linux-arm64.zip) |\n"
+          SAMPLE_APP_TABLE+="| Windows | x64 | [sample-app-$RELEASE_VERSION-win-x64.zip](https://github.com/asgardeo/thunder/releases/download/v$RELEASE_VERSION/sample-app-$RELEASE_VERSION-win-x64.zip) |\n"
+
+          QUICKSTART=$(echo "$QUICKSTART" | sed -E "s|Download `sample-app-<version>-<os>-<arch>.zip` from the \[latest release\].*|$SAMPLE_APP_TABLE|")
+
           # Get changelog from Release Drafter
           CHANGELOG="${{ steps.changelog.outputs.body }}"
 
