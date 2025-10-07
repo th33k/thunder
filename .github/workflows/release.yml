@@ -545,18 +545,35 @@ jobs:
           QUICKSTART=$(echo "$QUICKSTART" | sed "s/latest release of WSO2 Thunder/$RELEASE_VERSION release of WSO2 Thunder/g")
           
           # Add direct download links for Thunder server - replace download instruction and example paragraph
-          # Create the Thunder table replacement text
-          THUNDER_TABLE=$'| OS | Architecture | Download Link |\n|-------|-------------|-------------|\n| macOS | ARM64 (Apple Silicon) | [thunder-'"$RELEASE_VERSION"'-macos-arm64.zip](https://github.com/'"${{ github.repository }}"'/releases/download/v'"$RELEASE_VERSION"'/thunder-'"$RELEASE_VERSION"'-macos-arm64.zip) |\n| macOS | x64 (Intel) | [thunder-'"$RELEASE_VERSION"'-macos-x64.zip](https://github.com/'"${{ github.repository }}"'/releases/download/v'"$RELEASE_VERSION"'/thunder-'"$RELEASE_VERSION"'-macos-x64.zip) |\n| Linux | x64 | [thunder-'"$RELEASE_VERSION"'-linux-x64.zip](https://github.com/'"${{ github.repository }}"'/releases/download/v'"$RELEASE_VERSION"'/thunder-'"$RELEASE_VERSION"'-linux-x64.zip) |\n| Linux | ARM64 | [thunder-'"$RELEASE_VERSION"'-linux-arm64.zip](https://github.com/'"${{ github.repository }}"'/releases/download/v'"$RELEASE_VERSION"'/thunder-'"$RELEASE_VERSION"'-linux-arm64.zip) |\n| Windows | x64 | [thunder-'"$RELEASE_VERSION"'-win-x64.zip](https://github.com/'"${{ github.repository }}"'/releases/download/v'"$RELEASE_VERSION"'/thunder-'"$RELEASE_VERSION"'-win-x64.zip) |'
+          # Replace Thunder download instruction with table
+          QUICKSTART=$(echo "$QUICKSTART" | awk -v RS= -v ORS='\n\n' -v version="$RELEASE_VERSION" -v repo="${{ github.repository }}" '
+          {
+            if ($0 ~ /Download `thunder-.*-<os>-<arch>\.zip`/) {
+              gsub(/Download `thunder-[^`]*-<os>-<arch>\.zip` from the \[[^]]*\]\([^)]*\) for your operating system and architecture\.\n\n    For example[^\n]*\n*/, 
+                "| OS | Architecture | Download Link |\n|-------|-------------|-------------|\n" \
+                "| macOS | ARM64 (Apple Silicon) | [thunder-" version "-macos-arm64.zip](https://github.com/" repo "/releases/download/v" version "/thunder-" version "-macos-arm64.zip) |\n" \
+                "| macOS | x64 (Intel) | [thunder-" version "-macos-x64.zip](https://github.com/" repo "/releases/download/v" version "/thunder-" version "-macos-x64.zip) |\n" \
+                "| Linux | x64 | [thunder-" version "-linux-x64.zip](https://github.com/" repo "/releases/download/v" version "/thunder-" version "-linux-x64.zip) |\n" \
+                "| Linux | ARM64 | [thunder-" version "-linux-arm64.zip](https://github.com/" repo "/releases/download/v" version "/thunder-" version "-linux-arm64.zip) |\n" \
+                "| Windows | x64 | [thunder-" version "-win-x64.zip](https://github.com/" repo "/releases/download/v" version "/thunder-" version "-win-x64.zip) |")
+            }
+            print
+          }')
           
-          QUICKSTART=$(printf "%s" "$QUICKSTART" | sed 's~Download `thunder-'"$RELEASE_VERSION"'-<os>-<arch>\.zip` from the \['"$RELEASE_VERSION"' release\](https://github.com/asgardeo/thunder/releases/latest) for your operating system and architecture\.~'"$THUNDER_TABLE"'~')
-          
-          # Remove the example paragraph that follows (it's now redundant with the table)
-          QUICKSTART=$(printf "%s" "$QUICKSTART" | sed '/For example, if you are using a MacOS machine with a Apple Silicon (ARM64) processor, you would download `thunder-'"$RELEASE_VERSION"'-macos-arm64\.zip`\./d')
-          
-          # Create the Sample app table replacement text
-          SAMPLE_TABLE=$'| OS | Architecture | Download Link |\n|-------|-------------|-------------|\n| macOS | ARM64 (Apple Silicon) | [sample-app-'"$RELEASE_VERSION"'-macos-arm64.zip](https://github.com/'"${{ github.repository }}"'/releases/download/v'"$RELEASE_VERSION"'/sample-app-'"$RELEASE_VERSION"'-macos-arm64.zip) |\n| macOS | x64 (Intel) | [sample-app-'"$RELEASE_VERSION"'-macos-x64.zip](https://github.com/'"${{ github.repository }}"'/releases/download/v'"$RELEASE_VERSION"'/sample-app-'"$RELEASE_VERSION"'-macos-x64.zip) |\n| Linux | x64 | [sample-app-'"$RELEASE_VERSION"'-linux-x64.zip](https://github.com/'"${{ github.repository }}"'/releases/download/v'"$RELEASE_VERSION"'/sample-app-'"$RELEASE_VERSION"'-linux-x64.zip) |\n| Linux | ARM64 | [sample-app-'"$RELEASE_VERSION"'-linux-arm64.zip](https://github.com/'"${{ github.repository }}"'/releases/download/v'"$RELEASE_VERSION"'/sample-app-'"$RELEASE_VERSION"'-linux-arm64.zip) |\n| Windows | x64 | [sample-app-'"$RELEASE_VERSION"'-win-x64.zip](https://github.com/'"${{ github.repository }}"'/releases/download/v'"$RELEASE_VERSION"'/sample-app-'"$RELEASE_VERSION"'-win-x64.zip) |'
-          
-          QUICKSTART=$(printf "%s" "$QUICKSTART" | sed 's~Download `sample-app-'"$RELEASE_VERSION"'-<os>-<arch>\.zip` from the \['"$RELEASE_VERSION"' release\](https://github.com/asgardeo/thunder/releases/latest) for your operating system and architecture\.~'"$SAMPLE_TABLE"'~')
+          # Replace Sample app download instruction with table
+          QUICKSTART=$(echo "$QUICKSTART" | awk -v RS= -v ORS='\n\n' -v version="$RELEASE_VERSION" -v repo="${{ github.repository }}" '
+          {
+            if ($0 ~ /Download `sample-app-.*-<os>-<arch>\.zip`/) {
+              gsub(/Download `sample-app-[^`]*-<os>-<arch>\.zip` from the \[[^]]*\]\([^)]*\) for your operating system and architecture\./, 
+                "| OS | Architecture | Download Link |\n|-------|-------------|-------------|\n" \
+                "| macOS | ARM64 (Apple Silicon) | [sample-app-" version "-macos-arm64.zip](https://github.com/" repo "/releases/download/v" version "/sample-app-" version "-macos-arm64.zip) |\n" \
+                "| macOS | x64 (Intel) | [sample-app-" version "-macos-x64.zip](https://github.com/" repo "/releases/download/v" version "/sample-app-" version "-macos-x64.zip) |\n" \
+                "| Linux | x64 | [sample-app-" version "-linux-x64.zip](https://github.com/" repo "/releases/download/v" version "/sample-app-" version "-linux-x64.zip) |\n" \
+                "| Linux | ARM64 | [sample-app-" version "-linux-arm64.zip](https://github.com/" repo "/releases/download/v" version "/sample-app-" version "-linux-arm64.zip) |\n" \
+                "| Windows | x64 | [sample-app-" version "-win-x64.zip](https://github.com/" repo "/releases/download/v" version "/sample-app-" version "-win-x64.zip) |")
+            }
+            print
+          }')
 
           # Get changelog from Release Drafter
           CHANGELOG="${{ steps.changelog.outputs.body }}"
